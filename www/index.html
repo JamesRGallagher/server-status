@@ -27,15 +27,21 @@
     <script type="text/javascript" src="phonegap.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
     <script type="text/javascript" src="jquery-2.0.3.js"></script>
+    <script type="text/javascript" src="jquery.mobile-1.4.0.js"></script>
+    <link rel="stylesheet" href="jquery.mobile-1.4.0.css"></link>
     <script type="text/javascript" src="json2.js"></script>
     <script type="text/javascript">
+       
         app.initialize();
 
         moreInfo = function (id) {
+
+            var action = "getServerList";
+           
+            var URL = 'https://admin.accelerated.de/jsonUserApi.php?action=getServerDetails&serverID=' + id + '&auth=5Hs8MvCsdEp2&jsonp=functionServerDetails';
             
-            var action="getServerList";
-            var URL = 'https://admin.accelerated.de/jsonUserApi.php?action=getServerDetails&serverID='+id+'&auth=5Hs8MvCsdEp2&jsonp=functionServerDetails';
             $.ajax({
+
                 cache: false,
                 type: 'GET',
                 url: URL,
@@ -46,20 +52,14 @@
 
             });
 
-
-
         }
 
 
-        //JSON coming from the server is messy, have to clean it up so we can parse it properly
+         //JSON coming from the server is messy, have to clean it up so we can parse it properly
         cleanUpJSON = function (data) {
-
-
-
+            
             //covert JSON obj to string
             var string = JSON.stringify(data);
-            
-
 
             //remove the {"server": part which we don't want               
             cleanStringTemp = string.replace(string.split('[')[0], '');
@@ -73,106 +73,113 @@
 
         //This function converts the JSON to <li> elements
         jsonToHtml = function (json) {
-
-
             
             html = "";
 
             $.each(json, function (index, item) {
 
-                if(item.id){
-               
+                //if item ID is present, we know the request has been sent from getServerList and not getServerDetails, so we can append the correct HTML
+                if (item.id) {
+
                     severID = '';
-               
+
                     severName = '';
-               
+
                     customName = '';
-               
+
                     //if a customName exists, append it to the HTML, otherwise, in the default case, just append the id and name.
                     if (item.customName) {
-                
+
                         customName = item.customName;
-                    
-                        html = "<li id="+item.id+"><a onclick=moreInfo("+item.id+")>" + "ID:" + " " + item.id + " " + "Name:" + " " + item.name + " " + "Custom Name:" + " " + item.customName + "</a></li>";
-                   
+
+                        html = "<li id=" + item.id + "><a href="+"'#moreInfoPage'"+" "+"onclick=moreInfo(" + item.id + ")>" + "ID:" + " " + item.id + " " + "Name:" + " " + item.name + " " + "Custom Name:" + " " + item.customName + "</a></li>";
+                        alert(html)
                         $('#serverList').append(html);
+                        $('#serverList').listview('refresh');
+
 
                     } else {
 
-                        html = "<li id="+item.id+"><a onclick=moreInfo("+item.id+")>" + "ID:" + " " + item.id + " " + "Name:" + " " + item.name + "</a></li>";
-                   
+                        html = "<li id=" + item.id + "><a a href="+"'#moreInfoPage'"+" "+" onclick=moreInfo(" + item.id + ")>" + "ID:" + " " + item.id + " " + "Name:" + " " + item.name + "</a></li>";
+
                         $('#serverList').append(html);
+                         $('#serverList').listview('refresh');
 
                     }
+
+                } else { //this is run when the request has come from getServerDetails
+
+                    $("#moreInfo").empty();
+
+                    if (item.customName) {
+
+                        html = "<span>" + "Name:" + " " + item.name + "<br>" + "IP:" + " " + item.ip + "<br>" + "Custom Name:" + " " + item.customName + "<br>" + "Port:" + " " + item.port + "<br>" + "BW in:" + " " + item.bwIn + "<br>" + "BW out:" + " " + item.bwOut + "<br>" + "t in:" + " " + item.tIn + "<br>" + "t out:" + " " + item.tOut + "<br>" + "t total:" + " " + item.tTotal + "</span>";
+
+                        $('#moreInfo').append(html);
+                        $('#moreInfo').listview('refresh');
+
+
+                    } else {
+
+                        html = "<span>" + "Name:" + " " + item.name + "<br>" + "IP:" + " " + item.ip + "<br>" + "Port:" + " " + item.port + "<br>" + "BW in:" + " " + item.bwIn + "<br>" + "BW out:" + " " + item.bwOut + "<br>" + "t in:" + " " + item.tIn + "<br>" + "t out:" + " " + item.tOut + "<br>" + "t total:" + " " + item.tTotal + "</span>";
+
+                        $('#moreInfo').append(html);
+                        $('#moreInfo').listview('refresh');
+
+                    }
+
+                }
             
-                } else {
-                    $( "#moreInfo" ).empty();
-
-                if (item.customName) {
-
-                    html = "<span>" + "Name:" + " " + item.name + "<br>" + "IP:" + " " + item.ip + "<br>" + "Custom Name:" + " " + item.customName + "<br>" + "Port:" + " " + item.port  + "<br>"+ "BW in:" + " " + item.bwIn + "<br>"+ "BW out:" + " " + item.bwOut +  "<br>"+ "t in:" + " " + item.tIn   + "<br>"+ "t out:" + " " + item.tOut   + "<br>"+ "t total:" + " " + item.tTotal +"</span>" ;
-                   
-                    $('#moreInfo').append(html);
-
-                } else {
-
-
-                html = "<span>" + "Name:" + " " + item.name + "<br>" + "IP:" + " " + item.ip + "<br>" +"Port:" + " " + item.port  + "<br>"+ "BW in:" + " " + item.bwIn + "<br>"+ "BW out:" + " " + item.bwOut +  "<br>"+ "t in:" + " " + item.tIn   + "<br>"+ "t out:" + " " + item.tOut   + "<br>"+ "t total:" + " " + item.tTotal +"</span>";
-                   
-                    $('#moreInfo').append(html);
-
-
-                }
-
-                }
             });
 
         }
 
 
-
         functionServerList = function (data) {
-           
+
             //if data is present
             if (data != undefined) {
 
                 var jsonString = cleanUpJSON(data);
-                
+
                 json = jQuery.parseJSON(jsonString);
-                
+
                 jsonToHtml(json);
 
             }
 
         }
+        
 
         functionServerDetails = function (data) {
-           
+
             //if data is present
             if (data != undefined) {
 
                 //this time data isn't quite as messy, just need to append and prepend  [  and ] to make the JSON valid
                 var jsonString = JSON.stringify(data);
 
-                jsonString+=']';
-                jsonString='['.concat(jsonString);
-                
-                json = jQuery.parseJSON(jsonString);
-                
-                jsonToHtml(json);
+                jsonString += ']';
 
+                jsonString = '['.concat(jsonString);
+
+                json = jQuery.parseJSON(jsonString);
+
+                jsonToHtml(json);
 
             }
 
         }
 
 
-
-
         function getServerList() {
-            var action="getServerList";
-            var URL = 'https://admin.accelerated.de/jsonUserApi.php?action='+action+'&auth=5Hs8MvCsdEp2&jsonp=functionServerList';
+
+            var action = "getServerList";
+
+            var URL = 'https://admin.accelerated.de/jsonUserApi.php?action=' + action + '&auth=5Hs8MvCsdEp2&jsonp=functionServerList';
+
             $.ajax({
+
                 cache: false,
                 type: 'GET',
                 url: URL,
@@ -184,25 +191,48 @@
             });
 
         }
+
     </script>
 </head>
 
 <body>
 
-    <div id="home">
-        <div class="toolbar">
-            <h1>Server List</h1>
-        </div>
-        <ul class="edgetoedge" id="serverList">
-            
-        </ul>
-        <div id="moreInfo">
-            
-        </div>
-        <a href='#' onclick='getServerList(); return false;'>Click here !</a>
-    </div>
+  
+  <div data-role="page" class="jqm-demos" data-quicklinks="true">
 
+    <div data-role="header" class="jqm-header">
+    
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content">
+
+       
+
+            <div data-demo-html="true">
+               
+                <ul data-role="listview" data-filter="true" data-input="#filterBasic-input" id="serverList">
+                 
+                </ul>
+            </div><!--/demo-html -->
+            <a href='#' onclick='getServerList(); return false;'>Click here !</a>
     </div>
+</div>
+<div data-role="page" class="jqm-demos" data-quicklinks="true" id="moreInfoPage">
+
+    <div data-role="header" class="jqm-header">
+    
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content jqm-content">
+
+            <div data-demo-html="true">
+               
+                <ul data-role="listview" data-filter="true" data-input="#filterBasic-input" id="moreInfo">
+                 
+                </ul>
+            </div><!--/demo-html -->
+    </div>
+</div>
 
 </body>
 
