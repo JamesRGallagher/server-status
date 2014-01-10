@@ -21,9 +21,8 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="format-detection" content="telephone=no" />
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <meta name="viewport" content="user-scalable=no" />
     <script type="text/javascript" src="phonegap.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
     <script type="text/javascript" src="jquery-2.0.3.js"></script>
@@ -94,7 +93,7 @@
                         customName = item.customName;
 
                         html = "<li id=" + item.id + "><a href="+"'#moreInfoPage'"+" "+"onclick=moreInfo(" + item.id + ")>" + "ID:" + " " + item.id + " " + "Name:" + " " + item.name + " " + "Custom Name:" + " " + item.customName + "</a></li>";
-                        alert(html)
+                        //alert(html)
                         $('#serverList').append(html);
                         $('#serverList').listview('refresh');
 
@@ -196,7 +195,7 @@
     </script>
 </head>
 
-<body>
+<body onload='getServerList();' >
 
   
   <div data-role="page" class="jqm-demos" data-quicklinks="true">
@@ -215,7 +214,6 @@
                  
                 </ul>
             </div><!--/demo-html -->
-            <a href='#' onclick='getServerList(); return false;'>Click here !</a>
     </div>
 </div>
 <div data-role="page" class="jqm-demos" data-quicklinks="true" id="moreInfoPage">
